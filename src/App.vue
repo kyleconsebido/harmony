@@ -57,18 +57,22 @@ function authRedirect(isAuthenticated: boolean, route: RouteLocationNormalized) 
   align-items: center;
 }
 
+.splash img {
+  width: max(50vw, 250px);
+}
+
 .fade-leave-active {
-  animation: delay-fade-out 1s;
+  animation: delay-fade-out 1.25s;
 }
 
 @keyframes delay-fade-out {
   0% {
     opacity: 1;
   }
-  50% {
+  84% {
     opacity: 1;
   }
-  to {
+  100% {
     opacity: 0;
   }
 }
