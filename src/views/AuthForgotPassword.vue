@@ -29,6 +29,8 @@ const handleSubmit = (email: string) => {
     title="Forgot your Password?"
     submit-text="Send Email"
   >
-    <RouterLink to="/login">Log In</RouterLink>
+    <template #bottom>
+      <RouterLink to="/login">Log In</RouterLink>
+    </template>
   </AuthForm>
 </template>

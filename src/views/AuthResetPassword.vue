@@ -18,7 +18,10 @@ if (!route.query.code || typeof route.query.code !== 'string') {
 } else {
   await verifyResetCode(route.query.code)
     .then((emailAddress) => (email.value = emailAddress))
-    .catch(() => router.replace({ name: 'Login' }))
+    .catch(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      router.replace({ name: 'Login' })
+    })
 }
 
 const handleSubmit = (password: string) => {
@@ -58,6 +61,8 @@ const inputs: InstanceType<typeof AuthForm>['inputs'] = [
     @submit="handleSubmit"
     submit-text="Send Email"
   >
-    <RouterLink to="/login">Log In</RouterLink>
+    <template #bottom>
+      <RouterLink to="/login" replace>Log In</RouterLink>
+    </template>
   </AuthForm>
 </template>

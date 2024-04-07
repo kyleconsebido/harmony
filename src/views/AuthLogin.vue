@@ -31,11 +31,19 @@ const handleSubmit = (email: string, password: string) => {
     submit-text="Log In"
   >
     <template #password>
-      <RouterLink class="link" to="/forgot-password">Forgot your Password?</RouterLink>
+      <RouterLink class="forgot" to="/forgot-password">Forgot your Password?</RouterLink>
     </template>
-    <template>
-      <span>Need an Account? </span>
-      <RouterLink class="link" to="/register">Register</RouterLink>
+    <template #bottom>
+      <span>
+        <span>Need an Account? </span>
+        <RouterLink to="/register">Register</RouterLink>
+      </span>
     </template>
   </AuthForm>
 </template>
+
+<style scoped>
+.forgot {
+  margin-top: 0.2em;
+}
+</style>

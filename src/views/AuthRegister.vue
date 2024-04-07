@@ -46,7 +46,11 @@ const handleSubmit = (username: string, email: string, password: string) => {
     title="Create an Account"
     submit-text="Register"
   >
-    <span>Already have an account? </span>
-    <RouterLink class="link" to="/login">Login</RouterLink>
+    <template #bottom>
+      <span>
+        <span>Already have an account? </span>
+        <RouterLink class="link" to="/login">Login</RouterLink>
+      </span>
+    </template>
   </AuthForm>
 </template>
