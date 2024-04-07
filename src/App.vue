@@ -36,13 +36,17 @@ function authRedirect(isAuthenticated: boolean, route: RouteLocationNormalized) 
 </script>
 
 <template>
-  <div v-if="showSplash && !!loading" class="splash">Loading</div>
+  <Transition name="fade">
+    <div v-if="showSplash && !!loading" class="splash">
+      <img src="./assets/logotype-animated.svg" />
+    </div>
+  </Transition>
   <RouterView />
 </template>
 
 <style scoped>
 .splash {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100svw;
@@ -51,5 +55,21 @@ function authRedirect(isAuthenticated: boolean, route: RouteLocationNormalized) 
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.fade-leave-active {
+  animation: delay-fade-out 1s;
+}
+
+@keyframes delay-fade-out {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 </style>
