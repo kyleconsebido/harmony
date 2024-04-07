@@ -2,7 +2,9 @@
   --c-red-100: #fc3217;
 
   --c-orange-100: #ffebd9;
-  --c-orange-200: #fc8117;
+  --c-orange-200: #fdb271;
+  --c-orange-300: #fc8117;
+  --c-orange-400: #f6790d;
 
   --c-white-100: #fdfeff;
   --c-white-200: #f5f6fa;
@@ -11,6 +13,8 @@
   --c-gray-100: #e7ebf1;
   --c-gray-200: #dde1e7;
   --c-gray-300: #cfd5dc;
+  --c-gray-400: #bdc5cc;
+  --c-gray-500: #5f676f;
 
   --c-deep-blue-100: #11314c;
   --c-deep-blue-200: #0a2943;
@@ -19,15 +23,28 @@
 }
 
 :root {
+  --color-brand: var(--c-orange-300);
+  --color-brand-hover: var(--c-orange-400);
+
   --color-background: var(--c-white-100);
 
-  --color-heading: var(--c-deep-blue-200);
-  --color-text: var(--c-deep-blue-100);
+  --color-text-dark: var(--c-deep-blue-100);
+  --color-text-dark-mute: var(--c-gray-500);
+  --color-text-light: var(--c-white-100);
+  --color-text-light-mute: var(--c-gray-400);
 
-  --color-link: var(--c-orange-200);
-  --color-button: var(--c-orange-200);
+  --color-heading: var(--c-deep-blue-200);
 
   --color-input: var(--c-white-200);
+
+  --color-border: var(--c-gray-400);
+
+  --color-error: var(--c-red-100);
+  --color-success: var(--c-green-100);
+
+  --color-disabled: var(--c-gray-300);
+
+  --base-border-radius: 8px;
 }
 
 *,
@@ -38,9 +55,18 @@
   font-weight: normal;
 }
 
+html {
+  background: var(--color-background);
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-gray-300) var(--color-background);
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: #ffebd978;
+}
+
 body {
   min-height: 100vh;
-  color: var(--color-text);
+  color: var(--color-text-dark);
   background: var(--color-background);
   transition:
     color 0.5s,

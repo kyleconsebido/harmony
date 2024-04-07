@@ -51,10 +51,11 @@ function authRedirect(isAuthenticated: boolean, route: RouteLocationNormalized) 
   left: 0;
   width: 100svw;
   height: 100svh;
-  background-color: white;
+  background-color: var(--color-background);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .splash img {
