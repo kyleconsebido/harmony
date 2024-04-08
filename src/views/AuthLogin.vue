@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import useAuth from '@/composables/useAuth'
+import { useToast } from '@/composables/useToasts'
 import AuthForm from '@/components/AuthForm.vue'
 
 const { logIn } = useAuth()
@@ -16,8 +17,7 @@ const handleSubmit = (email: string, password: string) => {
   loading.value = true
 
   logIn(email, password)
-    .then(() => alert('Logged in successfully'))
-    .catch((err) => alert(err.message))
+    .catch((error) => useToast(error.message, { type: 'error' }))
     .finally(() => (loading.value = false))
 }
 </script>

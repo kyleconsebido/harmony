@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import useAuth from '@/composables/useAuth'
+import { useToast } from '@/composables/useToasts'
 import AuthForm from '@/components/AuthForm.vue'
 
 const { register } = useAuth()
@@ -32,8 +33,10 @@ const handleSubmit = (username: string, email: string, password: string) => {
   loading.value = true
 
   register(username, email, password)
-    .then(() => alert('Registered successfully'))
-    .catch((err) => alert(err.message))
+    .then(() =>
+      useToast('Registered successfully', { type: 'success', persistInPaths: ['/rooms'] })
+    )
+    .catch((error) => useToast(error.message, { type: 'error' }))
     .finally(() => (loading.value = false))
 }
 </script>

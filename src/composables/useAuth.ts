@@ -46,7 +46,10 @@ const forgotPassword = async (email: string) =>
     throw new Error(getErrorMessage(error))
   })
 
-const verifyResetCode = async (code: string) => verifyPasswordResetCode(auth, code)
+const verifyResetCode = async (code: string) =>
+  verifyPasswordResetCode(auth, code).catch((error) => {
+    throw new Error(getErrorMessage(error))
+  })
 
 const resetPassword = async (code: string, password: string) => {
   return confirmPasswordReset(auth, code, password).catch((error) => {

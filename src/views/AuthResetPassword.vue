@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import useAuth from '@/composables/useAuth'
+import { useToast } from '@/composables/useToasts'
 import AuthForm from '@/components/AuthForm.vue'
 
 const route = useRoute()
@@ -18,8 +19,9 @@ if (!route.query.code || typeof route.query.code !== 'string') {
 } else {
   await verifyResetCode(route.query.code)
     .then((emailAddress) => (email.value = emailAddress))
-    .catch(async () => {
+    .catch(async (error) => {
       await new Promise((resolve) => setTimeout(resolve, 0))
+      useToast(error.message, { type: 'error', timeout: -1, persistInPaths: ['/login'] })
       router.replace({ name: 'Login' })
     })
 }
@@ -28,8 +30,8 @@ const handleSubmit = (password: string) => {
   loading.value = true
 
   resetPassword(route.query.code as string, password)
-    .then(() => alert('Password reset successfully'))
-    .catch((error) => alert(error))
+    .then(() => useToast('Password reset successfully', { type: 'success' }))
+    .catch((error) => useToast(error.message, { type: 'error' }))
     .finally(() => router.replace({ name: 'Login' }))
 }
 

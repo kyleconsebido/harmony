@@ -23,9 +23,7 @@ onUnmounted(scrollGuard)
 
 <template>
   <main>
-    <RouterLink class="logo-link" to="/">
-      <img class="logo" src="@/assets/logotype.svg" />
-    </RouterLink>
+    <img class="logo" src="@/assets/logotype.svg" />
     <div class="form-container">
       <RouterView v-slot="{ Component }">
         <Suspense timeout="0">
@@ -55,7 +53,6 @@ main {
   width: clamp(250px, 50vw, 500px);
 }
 
-.logo-link,
 .logo {
   width: inherit;
 }
