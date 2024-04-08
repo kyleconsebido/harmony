@@ -1,5 +1,5 @@
 :root {
-  --c-red-100: #fc3217;
+  --c-red-100: #e14949;
 
   --c-orange-100: #ffebd9;
   --c-orange-200: #fdb271;
@@ -19,7 +19,7 @@
   --c-deep-blue-100: #11314c;
   --c-deep-blue-200: #0a2943;
 
-  --c-green-100: #1fe333;
+  --c-green-100: #36c244;
 }
 
 :root {
@@ -45,6 +45,9 @@
   --color-disabled: var(--c-gray-300);
 
   --base-border-radius: 8px;
+
+  --z-splash: 1000;
+  --z-toasts: 900;
 }
 
 *,

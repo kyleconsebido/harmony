@@ -2,11 +2,15 @@
 import { ref, watch } from 'vue'
 import { useRoute, useRouter, type RouteLocationNormalized } from 'vue-router'
 import useAuth from './composables/useAuth'
+import useToasts from './composables/useToasts'
+import AppToast from './components/AppToast.vue'
 
 const route = useRoute()
 const router = useRouter()
 
 const { user, loading } = useAuth()
+
+const toasts = useToasts()
 
 const showSplash = ref(false)
 
@@ -36,12 +40,31 @@ function authRedirect(isAuthenticated: boolean, route: RouteLocationNormalized) 
 </script>
 
 <template>
-  <Transition name="fade">
+  <Transition name="splash">
     <div v-if="showSplash && !!loading" class="splash">
       <img src="./assets/logotype-animated.svg" />
     </div>
   </Transition>
+
   <RouterView />
+
+  <Transition name="toasts">
+    <TransitionGroup
+      v-if="toasts.length > 0"
+      :style="{ '--count': toasts.length }"
+      class="toasts"
+      name="toasts"
+      tag="div"
+    >
+      <AppToast
+        v-for="(toast, i) of toasts"
+        :key="toast.id"
+        :toast="toast"
+        :style="{ '--index': i }"
+        class="toast"
+      />
+    </TransitionGroup>
+  </Transition>
 </template>
 
 <style scoped>
@@ -55,15 +78,54 @@ function authRedirect(isAuthenticated: boolean, route: RouteLocationNormalized) 
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: var(--z-splash);
 }
 
 .splash img {
   width: max(50vw, 250px);
 }
 
-.fade-leave-active {
+.splash-leave-active {
   animation: delay-fade-out 1.25s;
+}
+
+.toasts {
+  --count: 0;
+
+  position: fixed;
+  top: 5svh;
+  left: 50%;
+  translate: -50% 0;
+  width: clamp(300px, 60vw, 600px);
+  z-index: var(--z-toasts);
+}
+
+.toast {
+  --gap: 0.5em;
+  --index: 0;
+
+  position: absolute;
+  top: calc(var(--height, 3.5em) * var(--index) + var(--gap) * var(--index));
+  z-index: calc(var(--count) - var(--index));
+  height: var(--height, 3.5em);
+  width: 100%;
+}
+
+.toasts-move,
+.toasts-enter-active,
+.toasts-leave-active {
+  transform-origin: top;
+  transition:
+    250ms opacity,
+    250ms transform,
+    125ms scale;
+}
+
+.toasts-enter-from,
+.toasts-leave-to {
+  opacity: 0;
+  transform: translateY(-7svh);
+  scale: 0.8;
 }
 
 @keyframes delay-fade-out {
