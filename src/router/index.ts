@@ -45,7 +45,13 @@ const router = createRouter({
       path: '/rooms',
       name: 'Rooms',
       component: () => import('../views/RoomsView.vue'),
-      children: [{ path: '/rooms/:id', component: () => import('../views/RoomView.vue') }],
+      children: [
+        {
+          path: '/rooms/:id',
+          name: 'Room',
+          component: () => import('../views/RoomView.vue')
+        }
+      ],
       meta: { requiresAuth: true }
     }
   ]
