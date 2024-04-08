@@ -20,7 +20,7 @@ const dismissGuard = router.beforeEach((to) => {
 
 onMounted(() => {
   if (toast.timeout !== -1) {
-    timeoutId = setTimeout(toast.dismiss, toast.timeout)
+    timeoutId = window.setTimeout(toast.dismiss, toast.timeout)
   }
 })
 

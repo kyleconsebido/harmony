@@ -1,7 +1,7 @@
-import { FirebaseError } from 'firebase/app'
+import type { FirebaseError } from 'firebase/app'
+import { ref } from 'vue'
 import {
   type User,
-  getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
@@ -10,9 +10,7 @@ import {
   verifyPasswordResetCode,
   confirmPasswordReset
 } from 'firebase/auth'
-import { ref } from 'vue'
-
-const auth = getAuth()
+import { auth } from '@/firebase'
 
 let resolveLoading: typeof Promise.resolve
 
@@ -89,6 +87,7 @@ function getErrorMessage(error?: FirebaseError) {
       return 'Email is required'
     case 'auth/email-already-in-use':
       return 'Email is already in use'
+    case 'auth/user-not-found':
     case 'auth/invalid-credential':
       return 'Email or password is incorrect'
     case 'auth/invalid-action-code':
