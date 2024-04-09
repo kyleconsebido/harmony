@@ -1,0 +1,11 @@
+{
+  "files": ["_app.ts"],
+  "include": ["**/*"],
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "types": ["node"],
+    "skipLibCheck": true
+  }
+}

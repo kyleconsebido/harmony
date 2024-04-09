@@ -1,6 +1,6 @@
 # Harmony
 
-A hobby project developed for practice purposes; Harmony is a messaging web application built using Vue 3 and Firebase.
+A hobby project developed for practice purposes; Harmony is a messaging web application built using Vue 3, Firebase and Vercel Functions.
 
 ## Project Setup
 
