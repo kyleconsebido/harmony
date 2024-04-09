@@ -21,7 +21,7 @@ export const db = getFirestore(app)
 
 export const storage = getStorage(app)
 
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV && import.meta.env.VITE_FIREBASE_EMULATE === '1') {
   const host = import.meta.env.VITE_FIREBASE_EMULATOR_HOST
 
   await Promise.all([
