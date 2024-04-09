@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    ".env*": "properties",
+    "*.vars*": "properties",
+    "wrangler*.toml": "properties" 
+  }
+}
