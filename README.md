@@ -1,6 +1,6 @@
 # Harmony
 
-A hobby project developed for practice purposes; Harmony is a messaging web application built using Vue 3, Firebase and Cloudfare Pages.
+A hobby project developed for practice purposes; Harmony is a messaging web application built using Vue 3 and Firebase.
 
 ## Project Setup
 
@@ -8,17 +8,10 @@ A hobby project developed for practice purposes; Harmony is a messaging web appl
 pnpm install
 ```
 
-### Copy and populate environment variables
+### Populate environment variables
 
 ```sh
 cp .env.example .env
-```
-
-<b>Development variables</b>
-
-```sh
-cp .env.development.example .env.development
-cp .dev.vars.example .dev.vars
 ```
 
 ### Compile and Hot-Reload for Development
@@ -27,14 +20,14 @@ cp .dev.vars.example .dev.vars
 pnpm dev
 ```
 
-<b>In another terminal:</b>
-
-```sh
-pnpm wrangler
-```
-
 ### Type-Check, Compile and Minify for Production
 
 ```sh
-pnpm preview
+pnpm build
+```
+
+### Lint with [ESLint](https://eslint.org/)
+
+```sh
+pnpm lint
 ```

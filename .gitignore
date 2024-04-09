@@ -2,8 +2,6 @@
 .env
 !.env.example
 !.env.*.example
-.dev.vars
-.wrangler
 
 # Logs
 logs
@@ -27,7 +25,6 @@ coverage
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-!.vscode/settings.json
 .idea
 *.suo
 *.ntvs*
