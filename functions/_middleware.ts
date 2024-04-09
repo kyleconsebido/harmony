@@ -8,4 +8,15 @@ const errorHandling: PagesFunction = async (context) => {
   }
 }
 
-export const onRequest = [errorHandling]
+const setCors: PagesFunction<Env> = async (context) => {
+  const response = await context.next()
+
+  if (context.env.DEV) {
+    response.headers.set('Access-Control-Allow-Origin', context.env.VITE_DEV_URL)
+    response.headers.set('Access-Control-Max-Age', '86400')
+  }
+
+  return response
+}
+
+export const onRequest = [errorHandling, setCors]

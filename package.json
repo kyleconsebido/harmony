@@ -6,12 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
-    "preview": "vite build && wrangler pages dev",
+    "preview": "vite build && wrangler pages dev --binding DEV=false",
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
-    "wrangler": "wrangler pages dev"
+    "wrangler": "wrangler pages dev ./"
   },
   "dependencies": {
     "firebase": "^10.10.0",
