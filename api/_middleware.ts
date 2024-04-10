@@ -34,7 +34,7 @@ const middleware = (handler: Handler): Handler => {
         if (!token) throw null
         await auth.verifyIdToken(token)
       } catch (error) {
-        return Response.redirect('/login', 307)
+        return Response.redirect(`${process.env.APP_HOST}/login`, 307)
       }
 
       const methodHandler = handler as MethodHandler
@@ -50,7 +50,7 @@ const middleware = (handler: Handler): Handler => {
         isAuthenticated = !!user
       } catch (error) {
         const response = arg2 as VercelResponse
-        response.redirect(307, '/login')
+        response.redirect(307, `${process.env.APP_HOST}/login`)
       }
 
       if (isAuthenticated) {
