@@ -1,13 +1,11 @@
 {
-  "files": ["_app.ts", "_middleware.ts"],
-  "include": ["**/*"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
-    "rootDir": ".",
-    "composite": true,
-    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "lib": ["WebWorker"],
-    "strict": true,
-    "skipLibCheck": true
+    "typeRoots": ["./"],
+    "types": ["."]
   }
 }

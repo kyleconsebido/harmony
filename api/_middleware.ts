@@ -1,61 +1,123 @@
-import type { VercelApiHandler, VercelRequest, VercelResponse } from '@vercel/node'
+import type { xVercelApiHandler, VercelResponse, xVercelRequest } from '@vercel/node'
+import type { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
 import { auth } from './_app'
+import { sendJson } from './_utils'
 
 export type MethodHandler = (req: Request, context: FetchEvent) => Promise<Response> | Response
 
-export type Handler = VercelApiHandler | MethodHandler
+export type Handler = xVercelApiHandler | MethodHandler
+
+type HandlerType = 'method' | 'vercel'
+
+interface MethodHandlerParams {
+  arg1: Request
+  arg2: FetchEvent
+}
+
+interface VercelApiHandlerParams {
+  arg1: xVercelRequest
+  arg2: VercelResponse
+}
+
+type HandlerParams = MethodHandlerParams | VercelApiHandlerParams
+
+interface MiddlewareOptions {
+  /**@default ```true``` */
+  requiresAuth?: boolean
+}
+
+const DEFAULT_OPTS: MiddlewareOptions = {
+  requiresAuth: true
+}
+
+const AUTH_URL = `${process.env.APP_URL ?? 'https://' + process.env.VERCEL_URL}/login`
+
+const isMethodHandler = (params: HandlerParams): params is MethodHandlerParams => {
+  return params.arg1 instanceof Request
+}
+
+const verifyRequest = async (request: Request | xVercelRequest, handlerType: HandlerType) => {
+  let authorization: string | null | undefined
+
+  if (handlerType === 'method') {
+    authorization = (request as Request).headers.get('Authorization')
+  } else if (handlerType === 'vercel') {
+    authorization = (request as xVercelRequest).headers.authorization
+  } else {
+    throw new TypeError('handlerType is undefined')
+  }
+
+  const token = authorization?.split('Bearer ')?.[1]
+
+  if (!token) return null
+
+  let decodedToken: DecodedIdToken | null
+
+  try {
+    decodedToken = await auth.verifyIdToken(token)
+  } catch (error) {
+    decodedToken = null
+  }
+
+  return decodedToken
+}
 
 /**
- * poor man's middleware.
- * @example 
+ * For Authentication & Global Error Handling
+ * @example
+ * import middleware from './_middleware'
+ *
  * // Passing a MethodHandler
- * function getNumber() {
- *  const number = Math.random()
- *  return new Response(number.toString())
- * }
- * 
- * export const GET = middleware(getNumber)
- * 
- * // Passing a VercelApiHandler
- * function handler(req: VercelRequest, res: VercelResponse) {
- *  const number = Math.random()
- *  res.send(number.toString())
- * } 
- * 
+ * const getHello = () => new Response('Hello World!')
+ * export const GET = middleware(getHello)
+ *
+ * // Passing a xVercelApiHandler
+ * const handler: xVercelApiHandler = (req, res) => res.send('OK')
  * export default middleware(handler)
  */
-const middleware = (handler: Handler): Handler => {
-  return (async (arg1: Parameters<Handler>[0], arg2: Parameters<Handler>[1]) => {
-    if (arg1 instanceof Request) {
-      const headers = arg1.headers
-      const token = headers && headers.get('Authorization')?.split('Bearer ')?.[1]
+const middleware = (
+  handler: Handler,
+  { requiresAuth = DEFAULT_OPTS.requiresAuth }: MiddlewareOptions = DEFAULT_OPTS
+): Handler => {
+  return (async (...args: Parameters<Handler>) => {
+    const params = { arg1: args[0], arg2: args[1] } as HandlerParams
+    const handlerType: HandlerType = isMethodHandler(params) ? 'method' : 'vercel'
 
-      try {
-        if (!token) throw null
-        await auth.verifyIdToken(token)
-      } catch (error) {
-        return Response.redirect(`${process.env.APP_HOST}/login`, 307)
+    try {
+      if (handlerType === 'method') {
+        const methodHandler = handler as MethodHandler
+        const { arg1: request, arg2: context } = params as MethodHandlerParams
+
+        const user = await verifyRequest(request, 'method')
+        request._user = user
+
+        if (!user && requiresAuth) {
+          return Response.redirect(AUTH_URL, 307)
+        } else {
+          return await methodHandler(request, context)
+        }
+      } else {
+        const vercelApiHandler = handler as xVercelApiHandler
+        const { arg1: request, arg2: response } = params as VercelApiHandlerParams
+
+        const user = await verifyRequest(request, 'vercel')
+        request._user = user
+
+        if (requiresAuth && !user) {
+          response.redirect(307, AUTH_URL)
+        } else {
+          vercelApiHandler(request, response)
+        }
       }
+    } catch (error) {
+      console.error(error)
 
-      const methodHandler = handler as MethodHandler
-      methodHandler(arg1, arg2 as FetchEvent)
-    } else {
-      const token = arg1.headers.authorization?.split('Bearer ')?.[1]
+      const errorMessage = { error: 'Internal Server Error' }
 
-      let isAuthenticated = false
-
-      try {
-        if (!token) throw null
-        const user = await auth.verifyIdToken(token)
-        isAuthenticated = !!user
-      } catch (error) {
-        const response = arg2 as VercelResponse
-        response.redirect(307, `${process.env.APP_HOST}/login`)
-      }
-
-      if (isAuthenticated) {
-        const vercelApiHandler = handler as VercelApiHandler
-        vercelApiHandler(arg1 as VercelRequest, arg2 as VercelResponse)
+      if (handlerType === 'method') {
+        return sendJson(errorMessage, { status: 500 })
+      } else {
+        ;(args[1] as VercelResponse).status(500).send(errorMessage)
       }
     }
   }) as Handler
