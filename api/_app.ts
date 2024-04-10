@@ -1,6 +1,14 @@
 import admin, { type ServiceAccount } from 'firebase-admin'
+import dotenv from 'dotenv'
+
+if (process.env.__VERCEL_DEV_RUNNING == '1') {
+  dotenv.config()
+  dotenv.config({ path: '.env.development' })
+}
 
 let app: ReturnType<typeof admin.app>
+
+export let auth: ReturnType<typeof app.auth>
 
 try {
   const serviceAccount: ServiceAccount = {
@@ -12,8 +20,9 @@ try {
   admin.initializeApp({ credential: admin.credential.cert(serviceAccount) })
 
   app = admin.app()
+  auth = app.auth()
 } catch (error) {
   console.error(error)
 }
 
-export default app
+export default async () => ({ app })
