@@ -10,6 +10,8 @@ import {
 } from 'firebase/firestore'
 import { db } from '@/firebase'
 import mapSnapshot from '@/firebase/utils/mapSnapshot'
+import useAuth from './useAuth'
+import fetchFn from '@/utils/fetchFn'
 
 export interface RoomUserData {
   name: string
@@ -33,8 +35,12 @@ export interface MessageData {
   timestamp: Timestamp
 }
 
+export interface Message extends MessageData {
+  userName?: string | null
+}
+
 export interface Room extends RoomData {
-  messages: MessageData[]
+  messages: Message[]
 }
 
 enum Collection {
@@ -43,9 +49,58 @@ enum Collection {
 }
 
 export const useRoom = ({ roomId, roomData }: { roomId?: RoomData['id']; roomData?: RoomData }) => {
+  const { user } = useAuth()
+
+  const cachedUsernames: Record<string, string> = {}
+
   const room = ref<Room | null>(null)
   const loading = ref(false)
   const error = ref<Error | null>(null)
+
+  const cacheMissingUsers = async (missingUserIds: string[]) => {
+    const queryString = missingUserIds.reduce<string>((acc, userId, i) => {
+      return acc + (i === 0 ? '?' : '&') + `id=${userId}`
+    }, '')
+
+    const response = await fetchFn(`/users${queryString}`, user.value)
+
+    const { data } = (await response.json()) as { data: { id: string; name: string }[] }
+
+    for (const user of data) {
+      cachedUsernames[user.id] = user?.name
+    }
+  }
+
+  const getMessages = async (roomData: RoomData) => {
+    const q = query(collection(db, Collection.ROOMS, roomData.id, Collection.ROOM_MESSAGES))
+
+    const messagesData = await getDocs(q).then(mapSnapshot<MessageData>)
+
+    const msgIndicesWithMissingUsers: Record<number, string> = {}
+
+    const messages = messagesData.reduce<Message[]>((acc, messageData, i) => {
+      const userName =
+        roomData.users[messageData.userId]?.name ?? cachedUsernames[messageData.userId]
+
+      if (!userName) msgIndicesWithMissingUsers[i] = messageData.userId
+
+      acc.push({ ...messageData, userName })
+
+      return acc
+    }, [])
+
+    const missingEntries = Object.entries(msgIndicesWithMissingUsers)
+
+    if (missingEntries.length > 0) {
+      await cacheMissingUsers(Object.values(msgIndicesWithMissingUsers))
+
+      for (const [msgIndex, userId] of missingEntries) {
+        messages[+msgIndex].userName = cachedUsernames[userId]
+      }
+    }
+
+    return messages
+  }
 
   const getRoom = async () => {
     if (!roomId && !roomData) {
@@ -65,9 +120,7 @@ export const useRoom = ({ roomId, roomData }: { roomId?: RoomData['id']; roomDat
       newRoomData.id = roomDoc.id
     }
 
-    const q = query(collection(db, Collection.ROOMS, newRoomData.id, Collection.ROOM_MESSAGES))
-
-    const messages = await getDocs(q).then(mapSnapshot<MessageData>)
+    const messages = await getMessages(newRoomData)
 
     room.value = { ...newRoomData, messages }
   }

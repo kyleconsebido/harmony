@@ -6,7 +6,6 @@ import { type RoomData, useRoom } from '@/composables/useRooms'
 interface Props {
   roomData?: RoomData
 }
-
 const { roomData } = defineProps<Props>()
 
 const route = useRoute()
@@ -26,12 +25,14 @@ watch(error, () => {
   <template v-else-if="room">
     <h1>{{ room.name }}</h1>
     <main>
+      <h1>Messages</h1>
       <div v-for="msg of room.messages" :key="msg.id">
         <p>{{ msg.message }}</p>
-        <span>{{ msg.userId }}</span>
+        <span> - {{ msg.userName ?? '[deleted]' }}</span>
       </div>
     </main>
     <section>
+      <h1>Members</h1>
       <div v-for="[id, user] of Object.entries(room.users)" :key="id">
         {{ user }}
       </div>
