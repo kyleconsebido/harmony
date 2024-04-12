@@ -106,7 +106,7 @@ const middleware = (
         if (requiresAuth && !user) {
           response.redirect(307, AUTH_URL)
         } else {
-          vercelApiHandler(request, response)
+          await vercelApiHandler(request, response)
         }
       }
     } catch (error) {

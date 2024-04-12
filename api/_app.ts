@@ -1,5 +1,5 @@
-import admin, { type ServiceAccount } from 'firebase-admin'
 import dotenv from 'dotenv'
+import admin, { type ServiceAccount } from 'firebase-admin'
 
 if (process.env.__VERCEL_DEV_RUNNING == '1') {
   dotenv.config()
@@ -9,6 +9,7 @@ if (process.env.__VERCEL_DEV_RUNNING == '1') {
 let app: ReturnType<typeof admin.app>
 
 export let auth: ReturnType<typeof app.auth>
+export let db: ReturnType<typeof app.firestore>
 
 try {
   const serviceAccount: ServiceAccount = {
@@ -17,10 +18,11 @@ try {
     privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n') || ''
   }
 
-  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) })
+  admin.initializeApp({    credential: admin.credential.cert(serviceAccount) })
 
   app = admin.app()
   auth = app.auth()
+  db = app.firestore()
 } catch (error) {
   console.error(error)
 }
