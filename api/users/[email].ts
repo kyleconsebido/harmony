@@ -1,18 +1,18 @@
-import { xVercelApiHandler } from '@vercel/node'
 import middleware from '../_middleware'
 import { sendJson } from '../_utils'
+import { auth } from '../_app'
 
 const getUserByEmail = async (req: Request) => {
-  console.log(req._user)
-  return sendJson({ data: 'OK' })
+  const url = new URL(req.url)
+  const email = url.searchParams.get('email')
+
+  if (!email) return sendJson({ error: 'Email not found' }, { status: 404 })
+
+  const user = await auth.getUserByEmail(decodeURIComponent(email)).catch(() => null)
+
+  if (!user) return sendJson({ error: 'User not found' }, { status: 404 })
+
+  return sendJson({ data: user })
 }
 
-const handler: xVercelApiHandler = (req, res) => {
-  console.log('heress')
-
-  res.redirect(`${process.env.APP_HOST}/login`)
-  //   res.send('OK')
-}
-
-// export default handler
 export const GET = middleware(getUserByEmail)
