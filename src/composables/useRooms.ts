@@ -1,36 +1,46 @@
-import { ref } from 'vue'
-import { collection, getDocs, query, orderBy, addDoc, Timestamp } from 'firebase/firestore'
+import { onUnmounted, ref } from 'vue'
+import {
+  type Unsubscribe,
+  collection,
+  query,
+  orderBy,
+  addDoc,
+  Timestamp,
+  onSnapshot
+} from 'firebase/firestore'
 import { db } from '@/firebase'
-import { type Room as RoomData, Collection, type Room } from '@/schema'
+import { type Room, Collection } from '@/schema'
 import mapSnapshot from '@/firebase/utils/mapSnapshot'
 import useAuth from './useAuth'
 
 export default (userId: string) => {
   const { user } = useAuth()
 
-  const rooms = ref<RoomData[]>([])
+  let unsub: Unsubscribe | null = null
+  const rooms = ref<Room[]>([])
   const loading = ref(false)
   const error = ref<Error | null>(null)
 
   const getUserRooms = async () => {
     const q = query(collection(db, Collection.ROOMS), orderBy(`users.${userId}`))
-    const snapshot = await getDocs(q)
 
-    if (snapshot.size === 0) {
-      return
-    }
+    if (unsub) unsub()
 
-    const newRooms = mapSnapshot<RoomData>(snapshot)
+    unsub = onSnapshot(q, (snapshot) => {
+      const newRooms = mapSnapshot<Room>(snapshot)
 
-    // sort by time the user joined the room (descending)
-    newRooms.sort((a, b) => {
-      const timestampA = a.users[userId].timestamp
-      const timestampB = b.users[userId].timestamp
+      if (newRooms.length > 1) {
+        // sort by time the user joined the room (descending)
+        newRooms.sort((a, b) => {
+          const timestampA = a.users[userId].timestamp
+          const timestampB = b.users[userId].timestamp
 
-      return timestampB.toDate().valueOf() - timestampA.toDate().valueOf()
+          return timestampB.toDate().valueOf() - timestampA.toDate().valueOf()
+        })
+      }
+
+      rooms.value = newRooms
     })
-
-    rooms.value = newRooms
   }
 
   const fetchUserRooms = async () => {
@@ -46,7 +56,7 @@ export default (userId: string) => {
   }
 
   const createRoom = async (name: string) => {
-    if (!user.value) throw new Error('Unauthenticated');
+    if (!user.value) throw new Error('Unauthenticated')
     if (!name) throw new Error('Name required')
 
     await addDoc(collection(db, Collection.ROOMS), {
@@ -64,6 +74,8 @@ export default (userId: string) => {
   }
 
   fetchUserRooms()
+
+  onUnmounted(() => unsub?.())
 
   return { rooms, loading, error, createRoom, refetch: fetchUserRooms }
 }
