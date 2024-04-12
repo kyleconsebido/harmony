@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import type { Room } from '@/schema';
 import { ref } from 'vue'
 import useAuth from '@/composables/useAuth'
-import useRooms, { type RoomData } from '@/composables/useRooms'
+import useRooms from '@/composables/useRooms'
 
 const { user, logOut } = useAuth()
 
 const { rooms } = useRooms(user.value?.uid as string)
 
-const selectedRoom = ref<RoomData | null>(null)
+const selectedRoom = ref<Room | null>(null)
 </script>
 
 <template>

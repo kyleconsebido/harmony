@@ -1,4 +1,4 @@
-import type { Room as RoomData, Message as MessageData } from '@/schema'
+import type { Room, Message as MessageData } from '@/schema'
 import { ref } from 'vue'
 import { doc, collection, getDoc, getDocs, query } from 'firebase/firestore'
 import { db } from '@/firebase'
@@ -11,18 +11,18 @@ interface Message extends MessageData {
   userName?: string | null
 }
 
-interface Room extends RoomData {
-  messages: Message[]
-}
-
-export const useRoom = ({ roomId, roomData }: { roomId?: RoomData['id']; roomData?: RoomData }) => {
+export const useRoom = ({ roomId, roomData }: { roomId?: Room['id']; roomData?: Room }) => {
   const { user } = useAuth()
 
   const cachedUsernames: Record<string, string> = {}
 
   const room = ref<Room | null>(null)
-  const loading = ref(false)
-  const error = ref<Error | null>(null)
+  const loadingRoom = ref(false)
+  const errorRoom = ref<Error | null>(null)
+
+  const messages = ref<Message[]>([])
+  const loadingMessages = ref(false)
+  const errorMessages = ref<Error | null>(null)
 
   const cacheMissingUsers = async (missingUserIds: string[]) => {
     const queryString = missingUserIds.reduce<string>((acc, userId, i) => {
@@ -38,16 +38,15 @@ export const useRoom = ({ roomId, roomData }: { roomId?: RoomData['id']; roomDat
     }
   }
 
-  const getMessages = async (roomData: RoomData) => {
-    const q = query(collection(db, Collection.ROOMS, roomData.id, Collection.ROOM_MESSAGES))
+  const getMessages = async (room: Room) => {
+    const q = query(collection(db, Collection.ROOMS, room.id, Collection.ROOM_MESSAGES))
 
     const messagesData = await getDocs(q).then(mapSnapshot<MessageData>)
 
     const msgIndicesWithMissingUsers: Record<number, string> = {}
 
-    const messages = messagesData.reduce<Message[]>((acc, messageData, i) => {
-      const userName =
-        roomData.users[messageData.userId]?.name ?? cachedUsernames[messageData.userId]
+    const newMessages = messagesData.reduce<Message[]>((acc, messageData, i) => {
+      const userName = room.users[messageData.userId]?.name ?? cachedUsernames[messageData.userId]
 
       if (!userName) msgIndicesWithMissingUsers[i] = messageData.userId
 
@@ -56,17 +55,30 @@ export const useRoom = ({ roomId, roomData }: { roomId?: RoomData['id']; roomDat
       return acc
     }, [])
 
+    messages.value = newMessages
+
     const missingEntries = Object.entries(msgIndicesWithMissingUsers)
 
     if (missingEntries.length > 0) {
-      await cacheMissingUsers(Object.values(msgIndicesWithMissingUsers))
+      cacheMissingUsers(Object.values(msgIndicesWithMissingUsers)).then(() => {
+        for (const [msgIndex, userId] of missingEntries) {
+          messages.value[+msgIndex].userName = cachedUsernames[userId]
+        }
+      })
+    }
+  }
 
-      for (const [msgIndex, userId] of missingEntries) {
-        messages[+msgIndex].userName = cachedUsernames[userId]
-      }
+  const fetchMessages = async () => {
+    if (!room.value) {
+      throw new TypeError('room is undefined')
     }
 
-    return messages
+    loadingMessages.value = true
+    errorMessages.value = null
+
+    getMessages(room.value)
+      .catch((err) => (errorMessages.value = err))
+      .finally(() => (loadingMessages.value = false))
   }
 
   const getRoom = async () => {
@@ -83,25 +95,34 @@ export const useRoom = ({ roomId, roomData }: { roomId?: RoomData['id']; roomDat
         throw new Error('Room does not exist')
       }
 
-      newRoomData = roomDoc.data() as RoomData
+      newRoomData = roomDoc.data() as Room
       newRoomData.id = roomDoc.id
     }
 
-    const messages = await getMessages(newRoomData)
+    room.value = { ...newRoomData }
 
-    room.value = { ...newRoomData, messages }
+    fetchMessages()
   }
 
   const fetchRoom = async () => {
-    loading.value = true
-    error.value = null
+    loadingRoom.value = true
+    errorRoom.value = null
 
     getRoom()
-      .catch((err) => (error.value = err))
-      .finally(() => (loading.value = false))
+      .catch((err) => (errorRoom.value = err))
+      .finally(() => (loadingRoom.value = false))
   }
 
   fetchRoom()
 
-  return { loading, room, error, refetch: fetchRoom }
+  return {
+    room,
+    loadingRoom,
+    errorRoom,
+    messages,
+    loadingMessages,
+    errorMessages,
+    refetchRoom: fetchRoom,
+    refetchMessages: fetchMessages
+  }
 }

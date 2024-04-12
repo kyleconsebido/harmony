@@ -7,29 +7,33 @@ import { useRoom } from '@/composables/useRoom'
 interface Props {
   roomData?: Room
 }
+
 const { roomData } = defineProps<Props>()
 
 const route = useRoute()
 const router = useRouter()
 
-const { room, loading, error } = useRoom({ roomData, roomId: route.params.id as string })
+const { room, loadingRoom, errorRoom, messages } = useRoom({
+  roomData,
+  roomId: route.params.id as string
+})
 
-watch(error, () => {
-  if (error.value) {
+watch(errorRoom, () => {
+  if (errorRoom.value) {
     router.replace({ name: 'Rooms' })
   }
 })
 </script>
 
 <template>
-  <div v-if="loading">Loading</div>
+  <div v-if="loadingRoom">Loading</div>
   <template v-else-if="room">
     <h1>{{ room.name }}</h1>
     <main>
       <h1>Messages</h1>
-      <div v-for="msg of room.messages" :key="msg.id">
+      <div v-for="msg of messages" :key="msg.id">
         <p>{{ msg.message }}</p>
-        <span> - {{ msg.userName ?? '[deleted]' }}</span>
+        <span> - {{ msg.userName }}</span>
       </div>
     </main>
     <section>

@@ -4,11 +4,11 @@ import { auth } from '../_app'
 
 const getUserById = async (req: Request) => {
   const url = new URL(req.url)
-  const id = url.searchParams.get('email')
+  const id = url.searchParams.get('id')
 
   if (!id) return sendJson({ error: 'User ID not found' }, { status: 404 })
 
-  const user = await auth.getUserByEmail(id).catch(() => null)
+  const user = await auth.getUser(id).catch(() => null)
 
   if (!user) return sendJson({ error: 'User not found' }, { status: 404 })
 
