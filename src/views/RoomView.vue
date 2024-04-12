@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { Room } from '@/schema'
 import { watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { type RoomData, useRoom } from '@/composables/useRooms'
+import { useRoom } from '@/composables/useRoom'
 
 interface Props {
-  roomData?: RoomData
+  roomData?: Room
 }
 const { roomData } = defineProps<Props>()
 
