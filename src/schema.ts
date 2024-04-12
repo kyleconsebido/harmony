@@ -1,7 +1,7 @@
 import type { Timestamp } from 'firebase/firestore'
 
 export interface RoomUser {
-  name: string
+  name: string | null
   photoURL: string | null
   isAdmin: boolean
   timestamp: Timestamp
