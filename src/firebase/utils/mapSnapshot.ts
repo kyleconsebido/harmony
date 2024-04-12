@@ -1,15 +1,42 @@
-import type { DocumentData, getDocs } from 'firebase/firestore'
+import type { DocumentData, QueryDocumentSnapshot, getDocs } from 'firebase/firestore'
 
 type DocumentDataWithId = DocumentData & { id: string }
 
-export default <T extends DocumentDataWithId>(snap: Awaited<ReturnType<typeof getDocs>>) => {
-  const roomSubCollection: T[] = []
+type Snapshot = Awaited<ReturnType<typeof getDocs>>
+
+type ValueOf<T, K extends keyof T> =
+  | T[K]
+  | ((document: QueryDocumentSnapshot<unknown, DocumentData>) => T[K])
+
+interface MapOptions<T extends DocumentDataWithId> {
+  additionalFields: Partial<{
+    [K in keyof T]: ValueOf<T, K>
+  }>
+}
+
+function isValue<T extends DocumentDataWithId>(value: ValueOf<T, keyof T>): value is T[keyof T] {
+  return typeof value !== 'function'
+}
+
+export default <T extends DocumentDataWithId>(snap: Snapshot, opts?: MapOptions<T>) => {
+  const mappedSnapshot: T[] = []
 
   snap.forEach((doc) => {
-    const roomSubDoc = doc.data() as T
-    roomSubDoc.id = doc.id
-    roomSubCollection.push(roomSubDoc)
+    const document: T = doc.data() as T
+    document.id = doc.id
+
+    if (opts?.additionalFields) {
+      const additionalEntries: [keyof T, ValueOf<T, keyof T>][] = Object.entries(
+        opts.additionalFields
+      )
+
+      for (const [key, value] of additionalEntries) {
+        document[key] = isValue(value) ? value : value(doc)
+      }
+    }
+
+    mappedSnapshot.push(document)
   })
 
-  return roomSubCollection
+  return mappedSnapshot
 }
