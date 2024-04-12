@@ -5,7 +5,7 @@ export default async (path: `/${string}`, user: User | null, init?: RequestInit)
 
   const token = await user?.getIdToken()
 
-  const requestInit = structuredClone(init) ?? {}
+  const requestInit = init ?? {}
 
   requestInit.headers = new Headers(init?.headers)
   requestInit.headers.set('Authorization', `Bearer ${token}`)
