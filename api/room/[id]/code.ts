@@ -1,4 +1,8 @@
+import type { RoomUser } from '../../_schema'
+import type { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier'
 import type { xVercelApiHandler } from '@vercel/node'
+import { Collection } from '../../_schema'
+import { Timestamp } from 'firebase-admin/firestore'
 import middleware from '../../_middleware'
 import crypto from 'crypto'
 import { db } from '../../_app'
@@ -19,6 +23,31 @@ const generateCode = (currentDay: Date, roomId: string) => {
 
 const verifyCode = (code: string, currentDay: Date, roomId: string) => {
   return code === generateCode(currentDay, roomId)
+}
+
+const addUserToRoom = async (
+  uid: string,
+  name: string,
+  photoURL: string,
+  roomId: string
+): Promise<boolean> => {
+  const roomRef = db.collection(Collection.ROOMS).doc(roomId)
+
+  try {
+    await roomRef.update({
+      [`users.${uid}`]: {
+        name,
+        photoURL,
+        isAdmin: false,
+        timestamp: Timestamp.now()
+      } satisfies RoomUser
+    })
+
+    return true
+  } catch (error) {
+    console.error(error)
+    return false
+  }
 }
 
 const handler: xVercelApiHandler = async (req, res) => {
@@ -52,7 +81,7 @@ const handler: xVercelApiHandler = async (req, res) => {
         return
       }
 
-      const roomDoc = await db.doc(`rooms/${roomId}`).get()
+      const roomDoc = await db.doc(`${Collection.ROOMS}/${roomId}`).get()
 
       if (!roomDoc.data()?.users[req._user?.uid || '']) {
         res.status(404).send({ error: 'Room ID not found' })
@@ -69,7 +98,7 @@ const handler: xVercelApiHandler = async (req, res) => {
       break
     }
     case 'POST': {
-      const { code } = req.body
+      const { code } = JSON.parse(req.body)
 
       if (!code) {
         res.status(404).send({ error: 'Code not found' })
@@ -83,9 +112,16 @@ const handler: xVercelApiHandler = async (req, res) => {
         return
       }
 
-      /**TODO: Add user to room  */
+      const { uid, name, picture } = req._user as DecodedIdToken
 
-      res.send({ data: 'OK' })
+      const result = await addUserToRoom(uid, name, picture || '', roomId)
+
+      if (result) {
+        res.send({ data: true })
+      } else {
+        res.status(400).send({ error: 'Unable to add user to room' })
+      }
+
       break
     }
     default:
