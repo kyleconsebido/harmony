@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Room } from '@/schema'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from '@/composables/useToasts'
 import useAuth from '@/composables/useAuth'
@@ -19,12 +19,18 @@ const { roomData } = defineProps<Props>()
 const route = useRoute()
 const router = useRouter()
 
-const { room, loading, error } = useRoom({
+const { room, loading, error, deleteRoom } = useRoom({
   roomData,
   roomId: route.params.id as string
 })
 
 const loadingCode = ref(false)
+
+const loadingDelete = ref(false)
+
+const isAdmin = computed(() => {
+  return room.value?.users[user.value?.uid || ''].isAdmin
+})
 
 const getInviteCode = () => {
   loadingCode.value = true
@@ -41,13 +47,28 @@ watch(error, () => {
     router.replace({ name: 'Rooms' })
   }
 })
+
+const handleDeleteRoom = () => {
+  loadingDelete.value = true
+
+  deleteRoom()
+    .then(() => {
+      router.replace({ name: 'Rooms' })
+      useToast('Room Deleted', { type: 'success' })
+    })
+    .catch((error) => useToast(error.message, { type: 'error' }))
+    .finally(() => (loadingDelete.value = false))
+}
 </script>
 
 <template>
   <div v-if="loading">Loading</div>
   <template v-else-if="room">
-    <h1>{{ room.name }}</h1>
     <main>
+      <span>
+        <h1>{{ room.name }}</h1>
+        <button v-if="isAdmin" @click="handleDeleteRoom">Delete Room</button>
+      </span>
       <RoomMessages :room="room" />
     </main>
     <section>
