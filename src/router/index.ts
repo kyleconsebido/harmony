@@ -42,6 +42,12 @@ const router = createRouter({
       ]
     },
     {
+      path: '/join/:id/:code',
+      name: 'Invite',
+      component: () => import('../views/RoomInviteView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/rooms',
       name: 'Rooms',
       component: () => import('../views/RoomsView.vue'),

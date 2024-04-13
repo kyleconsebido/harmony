@@ -1,26 +1,55 @@
-import { ref, type UnwrapRef } from 'vue'
+import { ref, type Ref } from 'vue'
 import useAuth from './useAuth'
 import fetchFn from '@/utils/fetchFn'
 
-export default <T>(path: `/${string}`, init?: RequestInit) => {
+interface FetchOptions {
+  immediate?: boolean
+}
+
+interface FetchValues<T> {
+  data: Ref<T | null>
+  loading: Ref<boolean>
+  error: Ref<Error | null>
+  refetch: () => Promise<T | null>
+}
+
+const DEFAULT_OPTS: FetchOptions = {
+  immediate: true
+}
+
+const isFetchOptions = (initOrOpts?: RequestInit | FetchOptions): initOrOpts is FetchOptions => {
+  if (!initOrOpts) return false
+  return 'immediate' in initOrOpts
+}
+
+function useFetch<T>(path: `/${string}`, init?: RequestInit, opts?: FetchOptions): FetchValues<T>
+
+function useFetch<T>(path: `/${string}`, opts?: FetchOptions): FetchValues<T>
+
+function useFetch<T>(
+  path: `/${string}`,
+  initOrOpts?: RequestInit | FetchOptions,
+  opts: FetchOptions = DEFAULT_OPTS
+): FetchValues<T> {
+  const init: RequestInit | undefined = !isFetchOptions(initOrOpts) ? initOrOpts : undefined
+  const options: FetchOptions = isFetchOptions(initOrOpts) ? initOrOpts : opts
+
   const { user: currentUser } = useAuth()
 
-  const data = ref<T | null>(null)
+  const data = ref<T | null>(null) as Ref<T | null>
   const loading = ref(false)
   const error = ref<Error | null>(null)
 
-  const getData = async (): Promise<T | null> => {
+  const getData = async <T>(): Promise<T | null> => {
     try {
       const response = await fetchFn(path, currentUser.value, init)
 
       if (!response.ok) {
         switch (response.status) {
           case 401:
-            throw new Error('User not found')
-          case 404:
-            throw new Error('Not found')
+            throw new Error('Unauthorized')
           default:
-            throw new Error('Fetch failed')
+            throw new Error('An error occured')
         }
       }
 
@@ -32,17 +61,21 @@ export default <T>(path: `/${string}`, init?: RequestInit) => {
     }
   }
 
-  const fetchUser = () => {
+  const fetchData = async (): Promise<T | null> => {
     loading.value = true
     error.value = null
 
-    getData()
-      .then((dat) => (data.value = dat as UnwrapRef<T> | null))
+    return await getData()
+      .then((dat) => (data.value = dat as T | null))
       .catch((err) => (error.value = err))
       .finally(() => (loading.value = false))
   }
 
-  fetchUser()
+  if (options?.immediate) {
+    fetchData()
+  }
 
-  return { data, loading, error }
+  return { data, loading, error, refetch: fetchData }
 }
+
+export default useFetch
