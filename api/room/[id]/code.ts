@@ -3,7 +3,7 @@ import middleware from '../../_middleware'
 import crypto from 'crypto'
 import { db } from '../../_app'
 
-const getMiddleEight = (input: string) => {
+const getMiddle = (input: string) => {
   const LENGTH = 9
   const middle = input.length / 2
   return input.slice(middle - LENGTH / 2, middle + LENGTH / 2)
@@ -14,7 +14,7 @@ const generateCode = (currentDay: Date, roomId: string) => {
     .createHmac('sha256', process.env.INVITE_KEY || '')
     .update(currentDay.getTime() + roomId)
     .digest('base64url')
-  return getMiddleEight(code)
+  return getMiddle(code)
 }
 
 const verifyCode = (code: string, currentDay: Date, roomId: string) => {
@@ -24,7 +24,7 @@ const verifyCode = (code: string, currentDay: Date, roomId: string) => {
 const handler: xVercelApiHandler = async (req, res) => {
   const now = Date.now()
   const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  today.setMinutes(0, 0, 0)
 
   const { id } = req.query
 
@@ -37,6 +37,21 @@ const handler: xVercelApiHandler = async (req, res) => {
 
   switch (req.method) {
     case 'GET': {
+      const { verify } = req.query
+
+      if (verify) {
+        const code = typeof verify === 'string' ? verify : verify[0]
+        const isVerified = verifyCode(code, today, roomId)
+
+        if (isVerified) {
+          res.send({ data: true })
+        } else {
+          res.status(400).send({ error: 'Invalid Code' })
+        }
+
+        return
+      }
+
       const roomDoc = await db.doc(`rooms/${roomId}`).get()
 
       if (!roomDoc.data()?.users[req._user?.uid || '']) {
@@ -44,7 +59,7 @@ const handler: xVercelApiHandler = async (req, res) => {
         return
       }
 
-      const todayEnd = new Date(today).setHours(23, 59, 59, 999)
+      const todayEnd = new Date(today).setMinutes(0, 0, 999)
       const remainingTime = Math.floor((todayEnd - now) / 1000)
 
       const invite = generateCode(today, roomId)
