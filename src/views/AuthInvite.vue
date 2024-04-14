@@ -59,10 +59,6 @@ const joinRoom = async () => {
 let stopLoading: () => void
 
 watch([loadingRoom, loadingCode], () => {
-  if (!loadingRoom.value && !loadingCode.value) {
-    stopLoading?.()
-  }
-
   if (loadingRoom.value) return
 
   if (room.value?.users[user.value?.uid || '']) {
@@ -81,6 +77,10 @@ watch([loadingRoom, loadingCode], () => {
     useToast('Invalid invite code', { type: 'error', persistInPaths: ['/rooms'] })
     router.replace('/rooms')
     return
+  }
+
+  if (!loadingRoom.value && !loadingCode.value) {
+    stopLoading?.()
   }
 })
 

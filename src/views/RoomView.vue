@@ -29,7 +29,7 @@ const loadingCode = ref(false)
 const loadingDelete = ref(false)
 
 const isAdmin = computed(() => {
-  return room.value?.users[user.value?.uid || ''].isAdmin
+  return room.value?.users[user.value?.uid || '']?.isAdmin
 })
 
 const getInviteCode = () => {

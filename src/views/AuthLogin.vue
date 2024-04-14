@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import useAuth from '@/composables/useAuth'
+import { useRoute, useRouter } from 'vue-router'
 import { useToast } from '@/composables/useToasts'
+import useAuth from '@/composables/useAuth'
 import AuthForm from '@/components/AuthForm.vue'
 
+const route = useRoute()
+const router = useRouter()
 const { logIn } = useAuth()
+
+const { redirect } = route.query
+const decodedRedirect = atob(typeof redirect === 'string' ? redirect : redirect?.[0] || '')
 
 const loading = ref(false)
 
@@ -17,6 +23,7 @@ const handleSubmit = (email: string, password: string) => {
   loading.value = true
 
   logIn(email, password)
+    .then(() => router.replace(redirect ? decodedRedirect : { name: 'Rooms' }))
     .catch((error) => useToast(error.message, { type: 'error' }))
     .finally(() => (loading.value = false))
 }

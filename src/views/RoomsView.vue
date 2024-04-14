@@ -3,8 +3,9 @@ import type { Room } from '@/schema'
 import { ref } from 'vue'
 import useAuth from '@/composables/useAuth'
 import useRooms from '@/composables/useRooms'
+import LogoutButton from '@/components/LogoutButton.vue'
 
-const { user, logOut } = useAuth()
+const { user } = useAuth()
 
 const { rooms, createRoom } = useRooms(user.value?.uid as string)
 
@@ -27,7 +28,7 @@ const selectedRoom = ref<Room | null>(null)
     </div>
     <div>
       <div>{{ user?.displayName }}</div>
-      <button @click="logOut">Log Out</button>
+      <LogoutButton />
     </div>
   </section>
 
