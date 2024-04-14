@@ -7,13 +7,18 @@ import {
   writeBatch,
   collection,
   getDocs,
-  deleteDoc
+  deleteDoc,
+  updateDoc,
+  deleteField
 } from 'firebase/firestore'
 import { db } from '@/firebase'
 import { Collection } from '@/schema'
 import { chunks } from '@/utils/chunks'
+import useAuth from './useAuth'
 
 export default ({ roomId, roomData }: { roomId?: Room['id']; roomData?: Room }) => {
+  const { user } = useAuth()
+
   let unsub: Unsubscribe | null = null
   const room = ref<Room | null>(null)
   const loading = ref(false)
@@ -54,6 +59,22 @@ export default ({ roomId, roomData }: { roomId?: Room['id']; roomData?: Room }) 
 
   fetchRoom()
 
+  const leaveRoom = async () => {
+    if (!user.value || !room.value) return
+
+    try {
+      const roomRef = doc(db, Collection.ROOMS, room.value.id)
+
+      const field = ('users' satisfies keyof Room) + `.${user.value.uid}`
+
+      await updateDoc(roomRef, {
+        [field]: deleteField()
+      })
+    } catch (error) {
+      throw new Error('An error occured')
+    }
+  }
+
   const deleteRoom = async () => {
     if (!room.value) return
 
@@ -88,6 +109,7 @@ export default ({ roomId, roomData }: { roomId?: Room['id']; roomData?: Room }) 
     loading,
     error,
     refetchRoom: fetchRoom,
+    leaveRoom,
     deleteRoom
   }
 }

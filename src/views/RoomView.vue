@@ -19,7 +19,7 @@ const { roomData } = defineProps<Props>()
 const route = useRoute()
 const router = useRouter()
 
-const { room, loading, error, deleteRoom } = useRoom({
+const { room, loading, error, leaveRoom, deleteRoom } = useRoom({
   roomData,
   roomId: route.params.id as string
 })
@@ -54,7 +54,19 @@ const handleDeleteRoom = () => {
   deleteRoom()
     .then(() => {
       router.replace({ name: 'Rooms' })
-      useToast('Room Deleted', { type: 'success' })
+      useToast('Room Deleted', { type: 'success', persistInPaths: ['/rooms'] })
+    })
+    .catch((error) => useToast(error.message, { type: 'error' }))
+    .finally(() => (loadingDelete.value = false))
+}
+
+const handleLeaveRoom = () => {
+  loadingDelete.value = true
+
+  leaveRoom()
+    .then(() => {
+      router.replace({ name: 'Rooms' })
+      useToast(`Left ${room.value?.name}`, { type: 'success', persistInPaths: ['/rooms'] })
     })
     .catch((error) => useToast(error.message, { type: 'error' }))
     .finally(() => (loadingDelete.value = false))
@@ -68,6 +80,7 @@ const handleDeleteRoom = () => {
       <span>
         <h1>{{ room.name }}</h1>
         <button v-if="isAdmin" @click="handleDeleteRoom">Delete Room</button>
+        <button v-else @click="handleLeaveRoom">Leave Room</button>
       </span>
       <RoomMessages :room="room" />
     </main>
