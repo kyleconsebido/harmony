@@ -30,12 +30,12 @@ export default (room: Room) => {
   const loading = ref(false)
   const error = ref<Error | null>(null)
 
-  const cacheMissingUsers = async (missingUserIds: string[]) => {
-    const queryString = missingUserIds.reduce<string>((acc, userId, i) => {
-      return acc + (i === 0 ? '?' : '&') + `id=${userId}`
-    }, '')
+  const cacheMissingUsers = async (missingUserIds: Set<string>) => {
+    let query = '?'
 
-    const response = await fetchFn(`/users${queryString}`, user.value)
+    missingUserIds.forEach((userId) => (query += `id=${userId}&`))
+
+    const response = await fetchFn(`/users${query}`, user.value)
 
     const { data } = (await response.json()) as { data: { id: string; name: string }[] }
 
@@ -63,7 +63,9 @@ export default (room: Room) => {
 
     if (missingEntries.length === 0) return
 
-    cacheMissingUsers(Object.values(msgIndicesWithMissingUsers)).then(() => {
+    const missingUserIds = new Set(Object.values(msgIndicesWithMissingUsers))
+
+    cacheMissingUsers(missingUserIds).then(() => {
       for (const [msgIndex, userId] of missingEntries) {
         messages.value[+msgIndex].userName = cachedUsernames[userId]
       }
