@@ -23,18 +23,22 @@ onUnmounted(scrollGuard)
 
 <template>
   <main>
-    <img class="logo" src="@/assets/logotype.svg" />
-    <div class="form-container">
-      <RouterView v-slot="{ Component }">
-        <Suspense timeout="0">
-          <template #fallback>
-            <LoadingDots class="loading" />
-          </template>
-          <Transition name="slide" mode="out-in">
-            <component :is="Component" :key="route.name" />
-          </Transition>
-        </Suspense>
-      </RouterView>
+    <div class="wrapper scrollbar">
+      <div class="container">
+        <img class="logo" src="@/assets/logotype.svg" />
+        <div class="form-container">
+          <RouterView v-slot="{ Component }">
+            <Suspense timeout="0">
+              <template #fallback>
+                <LoadingDots class="loading" />
+              </template>
+              <Transition name="slide" mode="out-in">
+                <component :is="Component" :key="route.name" />
+              </Transition>
+            </Suspense>
+          </RouterView>
+        </div>
+      </div>
     </div>
   </main>
 </template>
@@ -46,7 +50,18 @@ onUnmounted(scrollGuard)
   display: flex;
   justify-content: center;
 }
+
 main {
+  overflow: hidden;
+  height: 100svh;
+}
+
+.wrapper {
+  height: 100%;
+  overflow: scroll;
+}
+
+.container {
   margin: auto;
   padding-top: 5svh;
   padding-bottom: 10svh;
