@@ -38,14 +38,14 @@ const router = createRouter({
           path: '/reset-password',
           name: 'Reset Password',
           component: () => import('../views/AuthResetPassword.vue')
+        },
+        {
+          path: '/:id/:code',
+          name: 'Invite',
+          component: () => import('../views/AuthInvite.vue'),
+          meta: { requiresAuth: true }
         }
       ]
-    },
-    {
-      path: '/join/:id/:code',
-      name: 'Invite',
-      component: () => import('../views/RoomInviteView.vue'),
-      meta: { requiresAuth: true }
     },
     {
       path: '/rooms',

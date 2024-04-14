@@ -56,7 +56,13 @@ const joinRoom = async () => {
   loadingJoin.value = false
 }
 
+let stopLoading: () => void
+
 watch([loadingRoom, loadingCode], () => {
+  if (!loadingRoom.value && !loadingCode.value) {
+    stopLoading?.()
+  }
+
   if (loadingRoom.value) return
 
   if (room.value?.users[user.value?.uid || '']) {
@@ -77,6 +83,8 @@ watch([loadingRoom, loadingCode], () => {
     return
   }
 })
+
+await new Promise<void>((resolve) => (stopLoading = resolve))
 </script>
 
 <template>

@@ -31,7 +31,7 @@ watch(user, () => {
 })
 
 function authRedirect(isAuthenticated: boolean, route: RouteLocationNormalized) {
-  if (isAuthenticated && route.matched[0]?.name === 'Auth') {
+  if (isAuthenticated && route.matched[0]?.name === 'Auth' && !route.meta.requiresAuth) {
     router.replace({ name: 'Rooms' })
   } else if (!isAuthenticated && route.meta.requiresAuth) {
     router.replace({ name: 'Login' })
