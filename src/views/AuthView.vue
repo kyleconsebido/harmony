@@ -59,6 +59,7 @@ main {
 .wrapper {
   height: 100%;
   overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .container {
