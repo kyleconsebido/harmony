@@ -75,16 +75,16 @@ const handleLeaveRoom = () => {
 
 <template>
   <div v-if="loading">Loading</div>
-  <div v-else-if="room">
+  <div v-else-if="room" class="room">
     <main>
-      <span>
+      <header>
         <h1>{{ room.name }}</h1>
         <button v-if="isAdmin" @click="handleDeleteRoom">Delete Room</button>
         <button v-else @click="handleLeaveRoom">Leave Room</button>
-      </span>
-      <RoomMessages :room="room" />
+      </header>
+      <RoomMessages :room="room" class="messages" />
     </main>
-    <section>
+    <section class="members">
       <h1>Members</h1>
       <button :disabled="loadingCode" @click="getInviteCode">Invite Members</button>
       <div v-for="[id, user] of Object.entries(room.users)" :key="id">
@@ -93,3 +93,29 @@ const handleLeaveRoom = () => {
     </section>
   </div>
 </template>
+
+<style scoped>
+.room {
+  height: 100svh;
+  display: grid;
+  grid-template-columns: 1fr 250px;
+  overflow: hidden;
+}
+
+main {
+  height: 100%;
+  display: grid;
+  grid-template-rows: 80px calc(100svh - 80px);
+}
+
+main header {
+  padding: var(--room-padding);
+  display: flex;
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.1);
+}
+
+.members {
+  background-color: var(--color-section);
+  padding: var(--room-padding);
+}
+</style>
