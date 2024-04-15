@@ -52,7 +52,7 @@ const closeAddModal = () => {
         </button>
       </nav>
       <div class="profile">
-        <ProfileButton :user="user as User" position="top-right" btn-class="room-btn profile-btn" />
+        <ProfileButton :user="user as User" position="top-right" btn-class="room-btn" />
       </div>
     </section>
 
@@ -83,6 +83,9 @@ const closeAddModal = () => {
   flex-direction: column;
   gap: 0.5em;
   padding: var(--padding);
+  overflow-y: scroll;
+  scrollbar-width: none;
+  flex: 1;
 }
 
 .room {
@@ -111,13 +114,17 @@ const closeAddModal = () => {
 }
 
 :deep(.room-btn) {
+  --btn-size: 48px;
+
   display: block;
-  width: 64px;
-  height: 64px;
+  width: var(--btn-size);
+  height: var(--btn-size);
+  min-height: var(--btn-size);
   position: relative;
   border: none;
   overflow: hidden;
   border-radius: calc(var(--base-border-radius) * 4);
+  background-color: transparent;
   transition:
     200ms filter,
     400ms border-radius;
