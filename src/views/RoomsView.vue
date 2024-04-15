@@ -56,18 +56,19 @@ const closeAddModal = () => {
       </div>
     </section>
 
-    <RouterView v-slot="{ Component, route }">
-      <component :is="Component" :key="route.path" :roomData="selectedRoom" class="main" />
-    </RouterView>
+    <div class="main">
+      <RouterView v-slot="{ Component, route }">
+        <component :is="Component" :key="route.path" :roomData="selectedRoom" />
+      </RouterView>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .view {
-  --padding: 0.8rem;
-
   display: flex;
   height: 100svh;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -82,7 +83,7 @@ const closeAddModal = () => {
   display: flex;
   flex-direction: column;
   gap: 0.5em;
-  padding: var(--padding);
+  padding: var(--room-padding);
   overflow-y: scroll;
   scrollbar-width: none;
   flex: 1;
@@ -96,11 +97,11 @@ const closeAddModal = () => {
   content: '';
   position: absolute;
   top: 0;
-  right: calc(0em - var(--padding));
+  left: calc(0em - var(--room-padding));
   width: 0.5em;
   height: 100%;
-  background-color: var(--color-background);
-  border-radius: var(--base-border-radius) 0 0 var(--base-border-radius);
+  background-color: var(--color-border);
+  border-radius: 0 var(--base-border-radius) var(--base-border-radius) 0;
   opacity: 0;
   scale: 0.5;
   transition:
@@ -114,25 +115,23 @@ const closeAddModal = () => {
 }
 
 :deep(.room-btn) {
-  --btn-size: 48px;
-
   display: block;
-  width: var(--btn-size);
-  height: var(--btn-size);
-  min-height: var(--btn-size);
+  width: var(--room-btn-size);
+  height: var(--room-btn-size);
+  min-height: var(--room-btn-size);
   position: relative;
   border: none;
   overflow: hidden;
-  border-radius: calc(var(--base-border-radius) * 4);
+  border-radius: calc(var(--base-border-radius));
   background-color: transparent;
   transition:
-    200ms filter,
-    400ms border-radius;
+    200ms border-radius,
+    400ms scale;
 }
 
 :deep(.room-btn):hover {
-  border-radius: calc(var(--base-border-radius) * 2);
-  filter: brightness(0.95);
+  scale: 1.1;
+  border-radius: calc(var(--base-border-radius));
 }
 
 :deep(.room-btn) img {
@@ -159,11 +158,13 @@ const closeAddModal = () => {
   margin-top: auto;
   background-color: var(--color-section-2);
   width: 100%;
-  padding: var(--padding);
+  padding: var(--room-padding);
+  box-shadow: 0 -1px 2px -2px rgba(0, 0, 0, 0.5);
+  z-index: 1;
 }
 
 .main {
   flex: 1;
-  padding: var(--padding) var(--padding);
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.1);
 }
 </style>
