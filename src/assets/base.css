@@ -44,10 +44,14 @@
 
   --color-disabled: var(--c-gray-300);
 
+  --color-section: var(--c-white-300);
+  --color-section-2: var(--c-gray-200);
+
   --base-border-radius: 8px;
 
   --z-splash: 1000;
   --z-toasts: 900;
+  --z-profile: 800;
 }
 
 *,

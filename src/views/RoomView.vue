@@ -75,7 +75,7 @@ const handleLeaveRoom = () => {
 
 <template>
   <div v-if="loading">Loading</div>
-  <template v-else-if="room">
+  <div v-else-if="room">
     <main>
       <span>
         <h1>{{ room.name }}</h1>
@@ -91,5 +91,5 @@ const handleLeaveRoom = () => {
         {{ user }}
       </div>
     </section>
-  </template>
+  </div>
 </template>

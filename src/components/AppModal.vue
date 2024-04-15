@@ -17,13 +17,6 @@ const closeFromBackdrop = (e: MouseEvent) => {
   if (e.target === e.currentTarget) emit('close')
 }
 
-const escape = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') {
-    e.preventDefault()
-    emit('close')
-  }
-}
-
 watch([props, dialog], () => {
   if (!dialog.value) return
 
@@ -41,7 +34,7 @@ watch([props, dialog], () => {
       v-if="open"
       :ref="(el) => (dialog = el as HTMLDialogElement)"
       @pointerdown="closeFromBackdrop"
-      @keydown="escape"
+      @keydown.esc.prevent="emit('close')"
       class="scrollbar"
     >
       <div class="container">
@@ -63,6 +56,7 @@ dialog {
   border: none;
   border-radius: var(--base-border-radius);
   scrollbar-gutter: auto;
+  box-shadow: 0 2px 6px 2px rgba(0, 0, 0, 0.05);
 }
 
 ::backdrop {
@@ -81,7 +75,6 @@ dialog {
 
   .title {
     color: var(--color-heading);
-    text-transform: uppercase;
     font-weight: 500;
   }
 

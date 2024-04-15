@@ -61,7 +61,7 @@ export default (userId: string) => {
 
     await addDoc(collection(db, Collection.ROOMS), {
       name,
-      photoURL: 'https://api.dicebear.com/8.x/initials/svg?seed=',
+      photoURL: '',
       users: {
         [user.value.uid]: {
           isAdmin: true,
