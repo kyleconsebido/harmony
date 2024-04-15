@@ -23,7 +23,7 @@ onUnmounted(scrollGuard)
 
 <template>
   <main>
-    <div class="wrapper scrollbar">
+    <div class="wrapper">
       <div class="container">
         <img class="logo" src="@/assets/logotype.svg" />
         <div class="form-container">

@@ -35,7 +35,6 @@ watch([props, dialog], () => {
       :ref="(el) => (dialog = el as HTMLDialogElement)"
       @pointerdown="closeFromBackdrop"
       @keydown.esc.prevent="emit('close')"
-      class="scrollbar"
     >
       <div class="container">
         <div class="header">

@@ -1,12 +1,5 @@
 @import './base.css';
 
-.scrollbar {
-  scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  scrollbar-color: var(--c-gray-300) var(--color-background);
-  scroll-behavior: smooth;
-}
-
 .firebase-emulator-warning {
   background-color: transparent !important;
   border: none !important;
