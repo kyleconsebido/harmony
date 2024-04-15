@@ -58,6 +58,7 @@ export default (room: Room) => {
     }, [])
 
     messages.value = newMessages
+    loading.value = false;
 
     const missingEntries = Object.entries(msgIndicesWithMissingUsers)
 
@@ -75,7 +76,7 @@ export default (room: Room) => {
   const getMessages = async (room: Room) => {
     const q = query(
       collection(db, Collection.ROOMS, room.id, Collection.ROOM_MESSAGES),
-      orderBy('timestamp' satisfies keyof MessageData)
+      orderBy('timestamp' satisfies keyof MessageData, 'desc')
     )
 
     if (unsub) unsub()
@@ -109,9 +110,7 @@ export default (room: Room) => {
     loading.value = true
     error.value = null
 
-    getMessages(room)
-      .catch((err) => (error.value = err))
-      .finally(() => (loading.value = false))
+    getMessages(room).catch((err) => (error.value = err))
   }
 
   fetchMessages()
