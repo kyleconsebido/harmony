@@ -47,6 +47,9 @@
   --color-section: var(--c-white-300);
   --color-section-2: var(--c-gray-200);
 
+  --color-received: var(--c-orange-100);
+  --color-sent: var(--c-orange-300);
+
   --base-border-radius: 8px;
 
   --room-btn-size: 48px;
