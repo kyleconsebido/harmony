@@ -14,9 +14,11 @@ import { auth } from '@/firebase'
 
 let resolveLoading: typeof Promise.resolve
 
-const loading = ref<Promise<void> | null>(
-  new Promise((resolve) => (resolveLoading = resolve as typeof Promise.resolve))
-)
+const loading = ref<Promise<void> | null>(null)
+
+const startLoading = () => {
+  loading.value = new Promise((resolve) => (resolveLoading = resolve as typeof Promise.resolve))
+}
 
 const user = ref<User | null>(null)
 
@@ -37,7 +39,10 @@ const logIn = async (email: string, password: string) =>
     throw new Error(getErrorMessage(error))
   })
 
-const logOut = async () => auth.signOut()
+const logOut = async () => {
+  startLoading()
+  auth.signOut().finally(resolveLoading)
+}
 
 const forgotPassword = async (email: string) =>
   sendPasswordResetEmail(auth, email).catch((error) => {
@@ -63,6 +68,8 @@ onAuthStateChanged(auth, (currentUser) => {
 
   user.value = currentUser
 })
+
+startLoading()
 
 export default () => ({
   loading,
