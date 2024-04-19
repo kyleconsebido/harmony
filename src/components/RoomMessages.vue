@@ -2,6 +2,7 @@
 import type { Room } from '@/schema'
 import { ref } from 'vue'
 import useMessages from '@/composables/useMessages'
+import IconPlane from './icons/IconPlane.vue'
 
 interface Props {
   room: Room
@@ -12,6 +13,14 @@ const { room } = defineProps<Props>()
 const { messages, sendMessage } = useMessages(room)
 
 const input = ref('')
+
+const handleSend = () => {
+  if (!input.value) return
+
+  input.value = ''
+  
+  sendMessage(input.value)
+}
 </script>
 
 <template>
@@ -22,9 +31,9 @@ const input = ref('')
         <span> - {{ msg.userName }} ~ {{ msg.sending }}</span>
       </div>
     </div>
-    <form class="send-chat" @submit.prevent="sendMessage(input)">
+    <form class="send-chat" @submit.prevent="handleSend">
       <input v-model.trim="input" :placeholder="`Message ${room.name}`" />
-      <button>Send</button>
+      <button><IconPlane /></button>
     </form>
   </div>
 </template>
@@ -53,8 +62,7 @@ const input = ref('')
 }
 
 .send-chat {
-  display: grid;
-  grid-template-columns: 1fr 2.5em;
+  display: flex;
   column-gap: 0.5em;
   padding: var(--room-padding);
 
@@ -68,9 +76,46 @@ const input = ref('')
     font-family: inherit;
     font-size: 1rem;
     box-shadow: inset 0 0 2px 0 rgba(0, 0, 0, 0.1);
+    flex: 1;
 
     &::placeholder {
-      color: var(--color-text-light-mute)
+      color: var(--color-text-light-mute);
+    }
+  }
+
+  button {
+    background-color: var(--color-brand);
+    border-radius: 100%;
+    border: none;
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--color-text-light);
+    transition:
+      200ms background-color,
+      200ms scale 100ms;
+
+    &:enabled {
+      cursor: pointer;
+    }
+
+    &:hover {
+      background-color: var(--color-brand-hover);
+    }
+
+    &:active {
+      transition:
+        200ms background-color,
+        200ms scale 0s;
+      scale: 0.9;
+    }
+
+    svg {
+      translate: -0.5px 1px;
+      width: 90%;
+      height: 90%;
     }
   }
 }
