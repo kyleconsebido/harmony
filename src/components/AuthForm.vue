@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toRef } from 'vue'
-import { isEmailValid } from '@/utils'
+import isEmailValid from '@/utils/isEmailValid'
 import LoadingDots from './LoadingDots.vue'
 
 type InputType = 'email' | 'password' | 'text'
