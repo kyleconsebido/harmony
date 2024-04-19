@@ -82,7 +82,7 @@ const handleLeaveRoom = () => {
         <button v-if="isAdmin" @click="handleDeleteRoom">Delete Room</button>
         <button v-else @click="handleLeaveRoom">Leave Room</button>
       </header>
-      <RoomMessages :room="room" class="messages" />
+      <RoomMessages v-if="room" :room="room" class="messages" />
     </main>
     <section class="members">
       <h1>Members</h1>
