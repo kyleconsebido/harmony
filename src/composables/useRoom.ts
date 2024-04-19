@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '@/firebase'
 import { Collection } from '@/schema'
-import { chunks } from '@/utils/chunks'
+import chunks from '@/utils/chunks'
 import useAuth from './useAuth'
 
 export default ({ roomId, roomData }: { roomId?: Room['id']; roomData?: Room }) => {
