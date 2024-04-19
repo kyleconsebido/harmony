@@ -19,6 +19,8 @@ const { messages, sendMessage } = useMessages(room)
 
 const input = ref('')
 
+const chatRef = ref<HTMLDivElement | null>(null)
+
 const getProfileBtnPos = (userId: string, index: number) => {
   let position: InstanceType<typeof ProfileButton>['position'] =
     userId === user.value?.uid ? 'left' : 'right'
@@ -36,12 +38,14 @@ const handleSend = () => {
   sendMessage(input.value)
 
   input.value = ''
+
+  chatRef.value?.scrollTo?.({ top: chatRef.value?.scrollHeight })
 }
 </script>
 
 <template>
   <div class="messages">
-    <div class="chat">
+    <div :ref="(el) => (chatRef = el as HTMLDivElement)" class="chat">
       <div
         v-for="(msg, i) of messages"
         :key="msg.id"
