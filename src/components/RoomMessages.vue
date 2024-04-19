@@ -49,7 +49,7 @@ const handleSend = () => {
         class="message"
       >
         <div class="name-container">
-          <div class="name">{{ msg.userName }}</div>
+          <div class="name">{{ msg.userName || '&nbsp;' }}</div>
         </div>
         <div class="bubble-container">
           <ProfileButton
