@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { User } from 'firebase/auth'
-import { onUnmounted, ref, watch } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import LogoutButton from './LogoutButton.vue'
 import IconEdit from './icons/IconEdit.vue'
 import useAuth from '@/composables/useAuth'
@@ -10,26 +9,37 @@ type Position = 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'b
 interface Props {
   btnClass?: string
   position?: Position
-  user: User | null
+  userId: string
+  displayName: string
+  photoUrl?: string | null
+  email?: string
+  includeAuth?: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const { user: currentUser } = useAuth()
 
 const open = ref(false)
 const profile = ref<HTMLDivElement | null>(null)
+const profileBtn = ref<HTMLButtonElement | null>(null)
 
-const getFallbackImg = (seed?: string | null) => {
+const imgSrc = computed(() => {
+  if (props.photoUrl) return props.photoUrl
+
+  const seed = props.displayName + props.userId
   const backgroundColors = 'backgroundColor=f1f4dc,f88c49'
   const shapeColors = 'shapeColor=1c799f,f1f4dc,f88c49&'
   const fallbackImgSrc = `https://api.dicebear.com/8.x/thumbs/svg?${backgroundColors}&${shapeColors}&seed=`
 
   return fallbackImgSrc + seed
-}
+})
 
 const closeFromAnywhere = (e: MouseEvent) => {
-  if (!profile.value?.contains?.(e.target as Element)) {
+  if (
+    !profile.value?.contains?.(e.target as Element) &&
+    !profileBtn.value?.contains(e.target as Element)
+  ) {
     open.value = false
   }
 }
@@ -49,8 +59,13 @@ onUnmounted(() => {
 
 <template>
   <div class="container">
-    <button class="open-btn" @click.stop="open = !open" :class="btnClass">
-      <img :src="user?.photoURL || getFallbackImg(user?.email)" />
+    <button
+      :ref="(el) => (profileBtn = el as HTMLButtonElement)"
+      @click="open = !open"
+      :class="btnClass"
+      class="open-btn"
+    >
+      <img :src="imgSrc" />
     </button>
 
     <Transition name="popup">
@@ -58,17 +73,20 @@ onUnmounted(() => {
         v-if="open"
         :ref="(el) => (profile = el as HTMLDivElement)"
         :class="{ [position as Position]: position }"
+        :id="userId"
         class="profile"
       >
-        <button v-if="currentUser" class="edit-btn">
+        <button v-if="includeAuth && currentUser?.uid === userId" class="edit-btn">
           <span class="overlay"><IconEdit class="" /></span>
-          <img :src="user?.photoURL || getFallbackImg(user?.email)" />
+          <img :src="imgSrc" />
         </button>
-        <img v-else :src="user?.photoURL || getFallbackImg(user?.email)" />
+        <img v-else :src="imgSrc" />
         <div class="info">
-          <span class="name">{{ user?.displayName }}</span>
-          <span class="email">{{ user?.email }}</span>
-          <LogoutButton />
+          <span class="name">{{ displayName }}</span>
+          <template v-if="includeAuth && currentUser?.uid === userId">
+            <span class="email">{{ email }}</span>
+            <LogoutButton />
+          </template>
         </div>
       </div>
     </Transition>
@@ -85,6 +103,7 @@ button {
   padding: 0;
   border: none;
 
+  overflow: hidden;
   &:enabled {
     cursor: pointer;
   }

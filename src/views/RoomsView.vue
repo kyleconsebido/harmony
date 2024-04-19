@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { User } from 'firebase/auth'
 import type { Room } from '@/schema'
 import { ref } from 'vue'
 import useAuth from '@/composables/useAuth'
@@ -52,7 +51,15 @@ const closeAddModal = () => {
         </button>
       </nav>
       <div class="profile">
-        <ProfileButton :user="user as User" position="top-right" btn-class="room-btn" />
+        <ProfileButton
+          :user-id="user?.uid!"
+          :display-name="user?.displayName!"
+          :photo-url="user?.photoURL"
+          :email="user?.email!"
+          position="top-right"
+          btn-class="room-btn"
+          include-auth
+        />
       </div>
     </section>
 
