@@ -13,7 +13,7 @@ const element = ref<HTMLDivElement | null>()
 let timeoutId: number
 
 const dismissGuard = router.beforeEach((to) => {
-  if (!toast.persistInPaths?.includes?.(to.path)) {
+  if (!toast.persistInPaths?.includes?.(to.path) && !toast.persistOnNavigate) {
     toast.dismiss()
   }
 })

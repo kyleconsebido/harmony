@@ -59,7 +59,7 @@ export default (userId: string) => {
     if (!user.value) throw new Error('Unauthenticated')
     if (!name) throw new Error('Name required')
 
-    await addDoc(collection(db, Collection.ROOMS), {
+    const roomDoc = await addDoc(collection(db, Collection.ROOMS), {
       name,
       photoURL: '',
       users: {
@@ -71,6 +71,8 @@ export default (userId: string) => {
         }
       }
     } satisfies Omit<Room, 'id'>)
+
+    return roomDoc
   }
 
   fetchUserRooms()

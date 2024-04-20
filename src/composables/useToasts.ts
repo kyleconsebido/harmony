@@ -23,6 +23,14 @@ export interface ToastOptions {
    * By default, the toast is dismissed when navigating between routes.
    */
   persistInPaths?: string[]
+  /**
+   * The toast always persists when navigating between routes.
+   *
+   * Overrides `persistInPaths`
+   *
+   * By default, the toast is dismissed when navigating between routes.
+   */
+  persistOnNavigate?: boolean
 }
 
 export interface Toast extends ToastOptions {
@@ -51,7 +59,8 @@ export const useToast = (message: string, opts?: ToastOptions) => {
     type: opts?.type || 'default',
     dismissible: opts?.dismissible || true,
     timeout: opts?.timeout || 3000,
-    persistInPaths: opts?.persistInPaths
+    persistInPaths: opts?.persistInPaths,
+    persistOnNavigate: opts?.persistOnNavigate
   }
 
   toasts.value.unshift(toast)

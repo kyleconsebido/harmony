@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import type { Room } from '@/schema'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from '@/composables/useToasts'
 import useAuth from '@/composables/useAuth'
 import useRooms from '@/composables/useRooms'
 import AppModal from '@/components/AppModal.vue'
 import ProfileButton from '@/components/ProfileButton.vue'
+
+const router = useRouter()
 
 const { user } = useAuth()
 
@@ -24,13 +28,21 @@ const closeAddModal = () => {
   openAddModal.value = false
   input.value = ''
 }
+
+const handleCreateRoom = async () => {
+  const roomDoc = await createRoom(input.value)
+  router.push({ name: 'Room', params: { id: roomDoc.id } })
+  useToast(`Created Room: ${input.value}`, { type: 'success', persistOnNavigate: true })
+
+  closeAddModal()
+}
 </script>
 
 <template>
   <div class="view">
     <section class="sidebar">
       <AppModal :open="openAddModal" @close="closeAddModal" title="Create Room">
-        <form class="create" @submit.prevent="createRoom(input)">
+        <form class="create" @submit.prevent="handleCreateRoom">
           <input v-model.trim="input" class="input" placeholder="Room Name" required />
           <button class="btn">+</button>
         </form>
