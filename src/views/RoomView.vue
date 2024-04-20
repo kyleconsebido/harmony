@@ -7,6 +7,7 @@ import useAuth from '@/composables/useAuth'
 import useRoom from '@/composables/useRoom'
 import fetchFn from '@/utils/fetchFn'
 import RoomMessages from '@/components/RoomMessages.vue'
+import DropdownButton from '@/components/DropdownButton.vue'
 
 interface Props {
   roomData?: Room
@@ -78,9 +79,11 @@ const handleLeaveRoom = () => {
   <div v-else-if="room" class="room">
     <main>
       <header>
-        <h1>{{ room.name }}</h1>
-        <button v-if="isAdmin" @click="handleDeleteRoom">Delete Room</button>
-        <button v-else @click="handleLeaveRoom">Leave Room</button>
+        <h1 class="title">{{ room.name }}</h1>
+        <DropdownButton class="room-actions">
+          <button v-if="isAdmin" @click="handleDeleteRoom">Delete Room</button>
+          <button v-else @click="handleLeaveRoom">Leave Room</button>
+        </DropdownButton>
       </header>
       <RoomMessages v-if="room" :room="room" class="messages" />
     </main>
@@ -111,7 +114,19 @@ main {
 main header {
   padding: var(--room-padding);
   display: flex;
-  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 2px 0 var(--color-border);
+  align-items: center;
+
+  .title {
+    font-weight: 500;
+    margin-right: 0.5em;
+  }
+
+  .room-actions {
+    translate: 0 3px;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 }
 
 .members {
