@@ -218,7 +218,7 @@ form {
   border-radius: var(--base-border-radius);
   border: none;
   font-family: inherit;
-  padding: 0.5em;
+  padding: 0.5em 1em;
   color: var(--color-text-light);
   background-color: var(--color-success);
   display: inline-flex;

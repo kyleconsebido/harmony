@@ -30,9 +30,9 @@ const closeAddModal = () => {
   <div class="view">
     <section class="sidebar">
       <AppModal :open="openAddModal" @close="closeAddModal" title="Create Room">
-        <form @submit.prevent="createRoom(input)">
-          <input v-model.trim="input" placeholder="Room Name" required />
-          <button>Add Room</button>
+        <form class="create" @submit.prevent="createRoom(input)">
+          <input v-model.trim="input" class="input" placeholder="Room Name" required />
+          <button class="btn">+</button>
         </form>
       </AppModal>
       <nav class="rooms">
@@ -168,6 +168,22 @@ const closeAddModal = () => {
   padding: var(--room-padding);
   box-shadow: 0 -1px 2px -2px rgba(0, 0, 0, 0.5);
   z-index: 1;
+}
+
+.create {
+  display: flex;
+  gap: 1em;
+}
+
+.btn {
+  background-color: var(--color-success);
+  font-weight: 500;
+  font-size: 1.5rem;
+  padding: 0 0.5em;
+
+  &:hover {
+    background-color: var(--color-success-hover);
+  }
 }
 
 .main {

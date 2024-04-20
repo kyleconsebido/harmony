@@ -1,5 +1,30 @@
 @import './base.css';
 
+.input {
+  background-color: var(--color-input);
+  font-family: inherit;
+  padding: 0.5em 1em;
+  outline: none;
+  border: none;
+  border-radius: var(--base-border-radius);
+}
+
+.btn {
+  border-radius: var(--base-border-radius);
+  border: none;
+  font-family: inherit;
+  padding: 0.5em;
+  color: var(--color-text-light);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  transition: 200ms background-color;
+
+  &:enabled {
+    cursor: pointer;
+  }
+}
+
 .firebase-emulator-warning {
   background-color: transparent !important;
   border: none !important;
