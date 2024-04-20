@@ -8,7 +8,7 @@ import AppToast from './components/AppToast.vue'
 const route = useRoute()
 const router = useRouter()
 
-const { user, loading } = useAuth()
+const { user, loading, loggingOut } = useAuth()
 
 const toasts = useToasts()
 
@@ -34,7 +34,11 @@ function authRedirect(isAuthenticated: boolean, route: RouteLocationNormalized) 
   if (isAuthenticated && route.matched[0]?.name === 'Auth' && !route.meta.requiresAuth) {
     router.replace({ name: 'Rooms' })
   } else if (!isAuthenticated && route.meta.requiresAuth) {
-    router.replace({ name: 'Login', query: { redirect: btoa(route.fullPath) } })
+    if (loggingOut.value) {
+      router.replace({ name: 'Login' })
+    } else {
+      router.replace({ name: 'Login', query: { redirect: btoa(route.fullPath) } })
+    }
   }
 }
 </script>

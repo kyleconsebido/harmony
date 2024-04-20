@@ -16,6 +16,8 @@ let resolveLoading: typeof Promise.resolve
 
 const loading = ref<Promise<void> | null>(null)
 
+const loggingOut = ref(false)
+
 const startLoading = () => {
   loading.value = new Promise((resolve) => (resolveLoading = resolve as typeof Promise.resolve))
 }
@@ -40,8 +42,13 @@ const logIn = async (email: string, password: string) =>
   })
 
 const logOut = async () => {
+  loggingOut.value = true
   startLoading()
-  auth.signOut().finally(resolveLoading)
+
+  await auth.signOut()
+
+  loggingOut.value = false
+  resolveLoading()
 }
 
 const forgotPassword = async (email: string) =>
@@ -74,6 +81,7 @@ startLoading()
 export default () => ({
   loading,
   user,
+  loggingOut,
   register,
   logIn,
   logOut,

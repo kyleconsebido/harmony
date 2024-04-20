@@ -1,19 +1,12 @@
 <script setup lang="ts">
 import useAuth from '@/composables/useAuth'
-import { useRouter } from 'vue-router'
 import IconLogOut from './icons/IconLogOut.vue'
 
 const { logOut } = useAuth()
-const router = useRouter()
-
-const handleLogOut = async () => {
-  await logOut()
-  router.replace({ name: 'Login' })
-}
 </script>
 
 <template>
-  <button @click="handleLogOut">
+  <button @click="logOut">
     <IconLogOut />
     <span>Sign Out</span>
   </button>
