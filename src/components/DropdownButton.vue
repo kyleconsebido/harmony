@@ -98,6 +98,7 @@ button {
 :deep(.items) > * {
   --border: 1px solid var(--color-border);
 
+  color: var(--color-text-dark);
   font-family: inherit;
   font-size: 1rem;
   text-align: start;

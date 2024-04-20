@@ -41,7 +41,7 @@ watch([props, dialog], () => {
           <h2 class="title">{{ title }}</h2>
           <button @click="emit('close')" class="close-btn"><IconXMark /></button>
         </div>
-        <slot :Component="dialog"></slot>
+        <slot :Component="dialog" :close="() => emit('close')"></slot>
       </div>
     </dialog>
   </Transition>
@@ -63,7 +63,6 @@ dialog {
 }
 
 .container {
-  width: clamp(300px, 50vw, 500px);
   padding: 1rem;
 }
 

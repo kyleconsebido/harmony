@@ -1,5 +1,6 @@
 :root {
   --c-red-100: #e14949;
+  --c-red-200: #c73c3c;
 
   --c-orange-100: #ffebd9;
   --c-orange-200: #fdb271;
@@ -20,6 +21,7 @@
   --c-deep-blue-200: #0a2943;
 
   --c-green-100: #36c244;
+  --c-green-200: #32ad3e;
 }
 
 :root {
@@ -40,7 +42,9 @@
   --color-border: var(--c-gray-400);
 
   --color-error: var(--c-red-100);
+  --color-error-hover: var(--c-red-200);
   --color-success: var(--c-green-100);
+  --color-success-hover: var(--c-green-200);
 
   --color-disabled: var(--c-gray-300);
 
