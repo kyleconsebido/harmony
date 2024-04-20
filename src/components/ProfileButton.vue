@@ -10,7 +10,7 @@ interface Props {
   btnClass?: string
   position?: Position
   userId: string
-  displayName: string
+  displayName?: string
   photoUrl?: string | null
   email?: string
   includeAuth?: boolean
