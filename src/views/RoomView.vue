@@ -5,8 +5,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useToast } from '@/composables/useToasts'
 import useAuth from '@/composables/useAuth'
 import useRoom from '@/composables/useRoom'
-import fetchFn from '@/utils/fetchFn'
 import RoomMessages from '@/components/RoomMessages.vue'
+import RoomMembers from '@/components/RoomMembers.vue'
 import DropdownButton from '@/components/DropdownButton.vue'
 import AppModal from '@/components/AppModal.vue'
 import IconBox from '@/components/icons/IconBox.vue'
@@ -27,8 +27,6 @@ const { room, loading, error, updateName, leaveRoom, deleteRoom } = useRoom({
   roomData,
   roomId: route.params.id as string
 })
-
-const loadingCode = ref(false)
 
 const loadingUpdate = ref(false)
 const updatedName = ref('')
@@ -61,16 +59,6 @@ const handleUpdateName = async () => {
   updatedName.value = ''
   loadingUpdate.value = false
   openEditModal.value = false
-}
-
-const getInviteCode = () => {
-  loadingCode.value = true
-
-  fetchFn(`/room/${route.params.id}/code`, user.value)
-    .then((res) => res.json())
-    .then((data) => useToast(data.data))
-    .catch((error) => useToast(error.message, { type: 'error' }))
-    .finally(() => (loadingCode.value = false))
 }
 
 watch(error, () => {
@@ -123,7 +111,7 @@ const handleLeaveRoom = () => {
           class="modal"
         >
           <form @submit.prevent="handleUpdateName">
-            <input v-model.trim="updatedName" />
+            <input v-model.trim="updatedName" :placeholder="room.name"/>
             <button><IconEdit /></button>
           </form>
         </AppModal>
@@ -134,7 +122,7 @@ const handleLeaveRoom = () => {
           class="modal"
           v-slot="{ close }"
         >
-          <div style="margin-bottom: 1rem;">This action cannot be undone</div>
+          <div style="margin-bottom: 1rem">This action cannot be undone</div>
           <div class="delete">
             <button @click="close" class="cancel">Cancel</button>
             <button v-if="isAdmin" @click="handleDeleteRoom" class="submit">Delete Room</button>
@@ -144,13 +132,7 @@ const handleLeaveRoom = () => {
       </header>
       <RoomMessages v-if="room" :room="room" class="messages" />
     </main>
-    <section class="members">
-      <h1>Members</h1>
-      <button :disabled="loadingCode" @click="getInviteCode">Invite Members</button>
-      <div v-for="[id, user] of Object.entries(room.users)" :key="id">
-        {{ user }}
-      </div>
-    </section>
+    <RoomMembers v-if="room" :room-id="room.id" :members="room.users" class="members" />
   </div>
 </template>
 
