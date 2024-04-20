@@ -59,6 +59,18 @@ export default ({ roomId, roomData }: { roomId?: Room['id']; roomData?: Room }) 
 
   fetchRoom()
 
+  const updateName = async (name: string) => {
+    if (!user.value || !room.value) return
+
+    try {
+      const roomRef = doc(db, Collection.ROOMS, room.value.id)
+
+      await updateDoc(roomRef, { name } satisfies Partial<Room>)
+    } catch (error) {
+      throw new Error('An error occured')
+    }
+  }
+
   const leaveRoom = async () => {
     if (!user.value || !room.value) return
 
@@ -109,6 +121,7 @@ export default ({ roomId, roomData }: { roomId?: Room['id']; roomData?: Room }) 
     loading,
     error,
     refetchRoom: fetchRoom,
+    updateName,
     leaveRoom,
     deleteRoom
   }

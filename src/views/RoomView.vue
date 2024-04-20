@@ -8,6 +8,7 @@ import useRoom from '@/composables/useRoom'
 import fetchFn from '@/utils/fetchFn'
 import RoomMessages from '@/components/RoomMessages.vue'
 import DropdownButton from '@/components/DropdownButton.vue'
+import AppModal from '@/components/AppModal.vue'
 
 interface Props {
   roomData?: Room
@@ -20,18 +21,45 @@ const { roomData } = defineProps<Props>()
 const route = useRoute()
 const router = useRouter()
 
-const { room, loading, error, leaveRoom, deleteRoom } = useRoom({
+const { room, loading, error, updateName, leaveRoom, deleteRoom } = useRoom({
   roomData,
   roomId: route.params.id as string
 })
 
 const loadingCode = ref(false)
 
+const loadingUpdate = ref(false)
+const updatedName = ref('')
+const openEditModal = ref(false)
+
 const loadingDelete = ref(false)
+const openDeleteModal = ref(false)
 
 const isAdmin = computed(() => {
   return room.value?.users[user.value?.uid || '']?.isAdmin
 })
+
+const handleDropdownClick = (modal: 'edit' | 'delete', closeDropdown: () => void) => {
+  closeDropdown()
+
+  if (modal === 'edit') {
+    openEditModal.value = true
+  } else if (modal === 'delete') {
+    openDeleteModal.value = true
+  }
+}
+
+const handleUpdateName = async () => {
+  if (!updatedName.value) return
+
+  loadingUpdate.value = true
+
+  await updateName(updatedName.value).catch((error) => useToast(error.message, { type: 'error' }))
+
+  updatedName.value = ''
+  loadingUpdate.value = false
+  openEditModal.value = false
+}
 
 const getInviteCode = () => {
   loadingCode.value = true
@@ -80,10 +108,25 @@ const handleLeaveRoom = () => {
     <main>
       <header>
         <h1 class="title">{{ room.name }}</h1>
-        <DropdownButton class="room-actions">
-          <button v-if="isAdmin" @click="handleDeleteRoom">Delete Room</button>
+        <DropdownButton class="room-actions" v-slot="{ close }">
+          <button @click="handleDropdownClick('edit', close)">Edit Name</button>
+          <button v-if="isAdmin" @click="handleDropdownClick('delete', close)">Delete Room</button>
           <button v-else @click="handleLeaveRoom">Leave Room</button>
         </DropdownButton>
+        <AppModal title="Edit Name" :open="openEditModal" @close="openEditModal = false">
+          <form @submit.prevent="handleUpdateName">
+            <input v-model.trim="updatedName" />
+            <button>Submit</button>
+          </form>
+        </AppModal>
+        <AppModal
+          :title="(isAdmin ? 'Delete ' : 'Leave ') + room.name + '?'"
+          :open="openDeleteModal"
+          @close="openDeleteModal = false"
+        >
+          <button v-if="isAdmin" @click="handleDeleteRoom">Delete Room</button>
+          <button v-else @click="handleLeaveRoom">Leave Room</button>
+        </AppModal>
       </header>
       <RoomMessages v-if="room" :room="room" class="messages" />
     </main>
